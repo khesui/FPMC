@@ -16,8 +16,8 @@ If Numba is not installed, implementation in generic python will be used. Numba 
 
 ## Notes
 This implemtation is the same as original paper except:
-1. Number of negative sample: default is 10
-2. Use one basket to predict one item. That is, size of "next basket - i" is 1.
+- Number of negative sample: default is 10
+- Use one basket to predict one item. That is, size of "next basket - i" is 1.
 
 ## Data format
 Please refer to data/idxseq.txt.
