@@ -5,7 +5,7 @@ FPMC[1] implementation for python3 with Numba.
 ## Dependencies
 - Python3
 - Numpy
-- Numba > 25.0
+- Numba >= 25.0
 
 ## How to run
 Just type

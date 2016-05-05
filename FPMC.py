@@ -42,13 +42,6 @@ class FPMC():
         latter = np.mean(self.VIL_m_VLI[:, b_tm1], axis=1).T
         return (former + latter)
 
-    def predict(self, u, b_tm1):
-        scores = self.compute_x_batch(u, b_tm1)
-        score_list = [(idx, score) for idx,score in enumerate(scores)]
-        score_list.sort(key=lambda x:x[1], reverse=True)
-
-        return [i[0] for i in score_list]
-
     def evaluation(self, data_list):
         np.dot(self.VUI, self.VIU.T, out=self.VUI_m_VIU)
         np.dot(self.VIL, self.VLI.T, out=self.VIL_m_VLI)
@@ -56,12 +49,12 @@ class FPMC():
         correct_count = 0
         rr_list = []
         for (u, i, b_tm1) in data_list:
-            pred_list = self.predict(u, b_tm1)
+            scores = self.compute_x_batch(u, b_tm1)
 
-            if i == pred_list[0]:
+            if i == scores.argmax():
                 correct_count += 1
 
-            rank = pred_list.index(i) + 1 
+            rank = len(np.where(scores > scores[i])[0]) + 1
             rr = 1.0/rank
             rr_list.append(rr)
 

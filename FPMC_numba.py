@@ -4,7 +4,6 @@ import numpy as np
 import numba as nb
 from numba import jit
 from utils import *
-from argsort import argsort1D
 
 import FPMC as FPMC_basic
 
@@ -134,29 +133,20 @@ def compute_x_batch_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI):
     return (former + latter)
 
 @jit(nopython=True)
-def predict_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI):
-    scores = compute_x_batch_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI)
-    pred_list_inv = argsort1D(scores)
-    return pred_list_inv
-
-@jit(nopython=True)
 def evaluation_jit(u_list, i_list, b_tm1_list, VUI_m_VIU, VIL_m_VLI):
     correct_count = 0
     acc_rr = 0
     for d_idx in range(len(u_list)):
         u = u_list[d_idx]
         i = i_list[d_idx]
-        b_tm1 = []
-        for l_idx in range(b_tm1_list.shape[1]):
-            if b_tm1_list[d_idx, l_idx] != -1:
-                b_tm1.append(b_tm1_list[d_idx, l_idx])
+        b_tm1 = b_tm1_list[d_idx][b_tm1_list[d_idx]!=-1]
+        scores = compute_x_batch_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI)
 
-        pred_list = predict_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI)[::-1]
 
-        if i == pred_list[0]:
+        if i == scores.argmax():
             correct_count += 1
 
-        rank = np.where(pred_list==i)[0][0] + 1
+        rank = len(np.where(scores > scores[i])[0]) + 1
         rr = 1.0/rank
         acc_rr += rr
 
